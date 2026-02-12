@@ -2,6 +2,14 @@ let questions = [];
 let currentIndex = 0;
 let wrongQuestions = [];
 
+const cleanText = (text) =>
+  text
+    .replace(/\r?\n/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/　/g, " ")
+    .trim();
+
+
 fetch("questions.json")
   .then(res => res.json())
   .then(data => {
@@ -16,13 +24,14 @@ function showQuestion() {
 
   const q = questions[currentIndex];
 
-  quizDiv.innerHTML = `
-    <h3>${q.question}</h3>
-    ${q.choices.map((c, i) =>
-      `<button onclick="checkAnswer(${i})">${c}</button>`
-    ).join("")}
-    <div id="result"></div>
-  `;
+ quizDiv.innerHTML = `
+  <h3>${cleanText(q.question)}</h3>
+  ${q.choices.map((c, i) =>
+    `<button onclick="checkAnswer(${i})">${cleanText(c)}</button>`
+  ).join("")}
+  <div id="result"></div>
+`;
+
 }
 
 function checkAnswer(selected) {
@@ -32,12 +41,17 @@ function checkAnswer(selected) {
 
   buttons.forEach(b => b.disabled = true);
 
-  if (selected === q.answer) {
-    resultDiv.innerHTML = `<p class="correct">正解！</p><p>${q.explanation}</p>`;
-  } else {
-    wrongQuestions.push(q);
-    resultDiv.innerHTML = `<p class="wrong">不正解</p><p>${q.explanation}</p>`;
-  }
+if (selected === q.answer) {
+  resultDiv.innerHTML =
+    `<p class="correct">正解！</p>
+     <p>${cleanText(q.explanation)}</p>`;
+} else {
+  wrongQuestions.push(q);
+  resultDiv.innerHTML =
+    `<p class="wrong">不正解</p>
+     <p>${cleanText(q.explanation)}</p>`;
+}
+
 
   document.getElementById("nextBtn").style.display = "block";
 }
